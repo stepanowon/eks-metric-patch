@@ -19,7 +19,7 @@ echo 'export PATH=$HOME/bin:$PATH' >> ~/.bashrc
  - 관리형 애드온  metric server를 제거하고 표준 upstream metrics-server를 설치
 
 ### 해결 단계
-- 기존 관리형 애드온 metrics 서버 제거
+#### 1. 기존 관리형 애드온 metrics 서버 제거
 ~~~
 aws eks delete-addon \
   --region ap-northeast-2 \
@@ -32,13 +32,13 @@ aws eks wait addon-deleted \
   --addon-name metrics-server
 ~~~
 
-### 관리형 metric addon 삭제 확인 : 여기서는 Not Found 떠야 함
+#### 2. 관리형 metric addon 삭제 확인 : 여기서는 Not Found 떠야 함
 ~~~
 kubectl -n kube-system get deployment metrics-server
 kubectl get apiservice v1beta1.metrics.k8s.io
 ~~~
 
-### 표준 upstream metrics server 설치 후 ArgoCD 재시작
+#### 3. 표준 upstream metrics server 설치 후 ArgoCD 재시작
 ~~~
 # 공식 upstream metrics-server 설치
 kubectl apply -f  https://github.com/kubernetes-sigs/metrics-server/releases/download/v0.8.1/components.yaml
@@ -49,7 +49,8 @@ kubectl -n argocd rollout status statefulset/argocd-application-controller --tim
 kubectl -n argocd get applications
 ~~~
 
-### metric server의 Protobuf 비교 스크립트 이 값이 200, 200이 나와야 함
+#### 4. metric server의 Protobuf 비교
+- 스크립트 실행 결과가  200, 200이 나오면 문제 해결 완료
 ~~~
 (
   # 컨트롤러의 서비스 계정과 현재 클러스터 주소
@@ -85,4 +86,3 @@ kubectl -n argocd get applications
 )
 ~~~
 
-3.4 200, 200이 나왔다면 자동으로 문제해결 되었을 것임.
